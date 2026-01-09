@@ -2,66 +2,47 @@
   "version": 2,
   "name": "shuttle-payment-system",
   "public": true,
+
   "builds": [
     {
       "src": "api/ors.js",
-      "use": "@vercel/node",
-      "config": { "maxLambdaSize": "15mb" }
+      "use": "@vercel/node"
     },
     {
       "src": "api/quote.js",
-      "use": "@vercel/node",
-      "config": { "maxLambdaSize": "15mb" }
+      "use": "@vercel/node"
     },
     {
       "src": "index.html",
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+
+  "rewrites": [
     {
-      "src": "/api/ors",
-      "dest": "/api/ors.js",
-      "methods": ["POST", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Accept",
-        "Access-Control-Max-Age": "86400"
-      }
+      "source": "/api/ors",
+      "destination": "/api/ors.js"
     },
     {
-      "src": "/api/quote",
-      "dest": "/api/quote.js",
-      "methods": ["POST", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Accept",
-        "Access-Control-Max-Age": "86400"
-      }
+      "source": "/api/quote",
+      "destination": "/api/quote.js"
     },
     {
-      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|txt|woff|woff2|ttf|eot))",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/api/(.*)",
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
+
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Accept" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
@@ -77,9 +58,11 @@
       ]
     }
   ],
+
   "env": {
     "NODE_ENV": "production"
   },
+
   "github": {
     "enabled": true,
     "silent": false
