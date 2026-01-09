@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         // Prepare customer email
         const customerEmailResponse = await sendEmail({
             apiKey: RESEND_API_KEY,
-            from: 'Modjadji Shuttle <onboarding@resend.dev>',
+            from: 'Modjadji Shuttle <techport011@gmail.com>',
             to: [email],
             subject: `Your Shuttle Quote #${bookingReference} - R${parseFloat(price).toFixed(2)}`,
             html: generateCustomerEmailHTML({
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
         if (websiteOwnerEmail) {
             await sendEmail({
                 apiKey: RESEND_API_KEY,
-                from: 'Modjadji Booking System <onboarding@resend.dev>',
+                from: 'Modjadji Booking System <techport011@gmail.com>',
                 to: [websiteOwnerEmail],
                 subject: `🚗 New Booking #${bookingReference} - ${name}`,
                 html: generateOwnerEmailHTML({
@@ -715,4 +715,5 @@ function generateOwnerEmailHTML(data) {
 </body>
 </html>
     `;
+
 }
