@@ -11,18 +11,18 @@
     { "src": "script.js", "use": "@vercel/static" }
   ],
 
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/ors",
-      "destination": "/api/ors.js"
+      "src": "/api/ors",
+      "dest": "/api/ors.js"
     },
     {
-      "source": "/api/quote",
-      "destination": "/api/quote.js"
+      "src": "/api/quote",
+      "dest": "/api/quote.js"
     },
     {
-      "source": "/((?!api|.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf)).*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
