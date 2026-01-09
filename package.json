@@ -1,0 +1,36 @@
+{
+  "name": "shuttle-payment-system",
+  "version": "2.0.0",
+  "description": "Professional shuttle service payment and booking system",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "deploy": "vercel --prod",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^35.0.0"
+  },
+  "keywords": [
+    "shuttle",
+    "transport",
+    "payment",
+    "booking",
+    "south-africa"
+  ],
+  "author": "Modjadji's Shuttle Service",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tech-Port-01/shuttle-payment-system"
+  },
+  "homepage": "https://modjadji-s-shuttle-service.vercel.app/",
+  "bugs": {
+    "url": "https://github.com/Tech-Port-01/shuttle-payment-system/issues"
+  }
+}

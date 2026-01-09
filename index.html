@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment System - Modjadji's Shuttle Service</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shuttle-van"></i>
+                    <div>
+                        <h1>Modjadji's Shuttle Service</h1>
+                        <p class="tagline">Tech Port Solutions</p>
+                    </div>
+                </div>
+                <div class="header-badge">
+                    <span class="badge">
+                        <i class="fas fa-lock"></i>
+                        Secure Payment System
+                    </span>
+                    <span class="badge">
+                        <i class="fas fa-bolt"></i>
+                        Instant Quotes
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Left Column: Booking Form -->
+            <section class="booking-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-credit-card"></i> Complete Your Booking</h2>
+                    <p class="section-subtitle">Get an instant quote and confirm your shuttle service</p>
+                </div>
+
+                <form id="bookingForm" class="booking-form">
+                    <!-- Progress Indicator -->
+                    <div class="progress-steps">
+                        <div class="step active">
+                            <span class="step-number">1</span>
+                            <span class="step-label">Your Details</span>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <span class="step-label">Trip Details</span>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <span class="step-label">Confirm & Pay</span>
+                        </div>
+                    </div>
+
+                    <!-- Passenger Information -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-user-circle"></i>
+                            <h3>Passenger Information</h3>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="name">
+                                    <i class="fas fa-user"></i>
+                                    Full Name *
+                                </label>
+                                <input type="text" id="name" name="name" required 
+                                       placeholder="John Doe" 
+                                       autocomplete="name">
+                                <div class="input-hint">As per official ID</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fas fa-envelope"></i>
+                                    Email Address *
+                                </label>
+                                <input type="email" id="email" name="email" required 
+                                       placeholder="john@example.com" 
+                                       autocomplete="email">
+                                <div class="input-hint">Quote will be sent here</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">
+                                    <i class="fas fa-phone"></i>
+                                    Phone Number *
+                                </label>
+                                <input type="tel" id="phone" name="phone" required 
+                                       placeholder="+27 123 456 7890" 
+                                       autocomplete="tel">
+                                <div class="input-hint">Driver will contact you</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="passengers">
+                                    <i class="fas fa-users"></i>
+                                    Number of Passengers *
+                                </label>
+                                <div class="passenger-selector">
+                                    <button type="button" class="passenger-btn" data-action="decrease">-</button>
+                                    <input type="number" id="passengers" name="passengers" 
+                                           min="1" max="50" value="1" required>
+                                    <button type="button" class="passenger-btn" data-action="increase">+</button>
+                                </div>
+                                <div class="input-hint">Maximum 50 passengers</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trip Details -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-route"></i>
+                            <h3>Trip Details</h3>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tripType">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    Trip Type *
+                                </label>
+                                <select id="tripType" name="tripType" required class="styled-select">
+                                    <option value="single">Single Trip (One Way)</option>
+                                    <option value="return">Return Trip (Round Trip)</option>
+                                </select>
+                            </div>
+
+                            <!-- Return Trip Details -->
+                            <div id="returnDetails" class="return-details" style="display: none;">
+                                <div class="form-group">
+                                    <label for="sameDayReturn">
+                                        <i class="fas fa-calendar-day"></i>
+                                        Same Day Return? *
+                                    </label>
+                                    <select id="sameDayReturn" name="sameDayReturn" class="styled-select">
+                                        <option value="yes">Yes - Same Day</option>
+                                        <option value="no">No - Different Day</option>
+                                    </select>
+                                </div>
+
+                                <div id="returnDateTimeFields" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="returnDate">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            Return Date
+                                        </label>
+                                        <input type="date" id="returnDate" name="returnDate">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="returnTime">
+                                            <i class="fas fa-clock"></i>
+                                            Return Time
+                                        </label>
+                                        <input type="time" id="returnTime" name="returnTime">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pickup">
+                                    <i class="fas fa-map-marker-alt pickup-icon"></i>
+                                    Pickup Address *
+                                </label>
+                                <input type="text" id="pickup" name="pickup" required 
+                                       placeholder="e.g., Sandton City, Johannesburg">
+                                <div class="input-hint">Full address or landmark</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dropoff">
+                                    <i class="fas fa-map-marker-alt dropoff-icon"></i>
+                                    Drop-off Address *
+                                </label>
+                                <input type="text" id="dropoff" name="dropoff" required 
+                                       placeholder="e.g., OR Tambo International Airport">
+                                <div class="input-hint">Full address or landmark</div>
+                            </div>
+
+                            <div class="form-grid cols-2">
+                                <div class="form-group">
+                                    <label for="date">
+                                        <i class="fas fa-calendar"></i>
+                                        Travel Date
+                                    </label>
+                                    <input type="date" id="date" name="date" 
+                                           min="<?php echo date('Y-m-d'); ?>">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="time">
+                                        <i class="fas fa-clock"></i>
+                                        Travel Time
+                                    </label>
+                                    <input type="time" id="time" name="time" value="09:00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Selection -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-car"></i>
+                            <h3>Select Your Vehicle</h3>
+                        </div>
+                        
+                        <div class="vehicle-grid">
+                            <div class="vehicle-option" data-vehicle="premier-sedan">
+                                <div class="vehicle-icon">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                <div class="vehicle-info">
+                                    <h4>Premier Sedan</h4>
+                                    <p>Up to 4 passengers</p>
+                                    <div class="vehicle-rate">R8/km</div>
+                                </div>
+                                <div class="vehicle-selector">
+                                    <input type="radio" name="vehicleType" value="premier-sedan" id="vehicle-premier" checked>
+                                    <label for="vehicle-premier"></label>
+                                </div>
+                            </div>
+
+                            <div class="vehicle-option" data-vehicle="luxury-sedan">
+                                <div class="vehicle-icon luxury">
+                                    <i class="fas fa-car-side"></i>
+                                </div>
+                                <div class="vehicle-info">
+                                    <h4>Luxury Sedan</h4>
+                                    <p>Up to 4 passengers</p>
+                                    <div class="vehicle-rate">R12/km</div>
+                                </div>
+                                <div class="vehicle-selector">
+                                    <input type="radio" name="vehicleType" value="luxury-sedan" id="vehicle-luxury">
+                                    <label for="vehicle-luxury"></label>
+                                </div>
+                            </div>
+
+                            <div class="vehicle-option" data-vehicle="suv">
+                                <div class="vehicle-icon suv">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="vehicle-info">
+                                    <h4>SUV</h4>
+                                    <p>Up to 6 passengers</p>
+                                    <div class="vehicle-rate">R15/km</div>
+                                </div>
+                                <div class="vehicle-selector">
+                                    <input type="radio" name="vehicleType" value="suv" id="vehicle-suv">
+                                    <label for="vehicle-suv"></label>
+                                </div>
+                            </div>
+
+                            <div class="vehicle-option" data-vehicle="van-7-seater">
+                                <div class="vehicle-icon van">
+                                    <i class="fas fa-van-shuttle"></i>
+                                </div>
+                                <div class="vehicle-info">
+                                    <h4>Van (7 Seater)</h4>
+                                    <p>Up to 7 passengers</p>
+                                    <div class="vehicle-rate">R18/km</div>
+                                </div>
+                                <div class="vehicle-selector">
+                                    <input type="radio" name="vehicleType" value="van-7-seater" id="vehicle-van7">
+                                    <label for="vehicle-van7"></label>
+                                </div>
+                            </div>
+
+                            <div class="vehicle-option" data-vehicle="van-14-seater">
+                                <div class="vehicle-icon van-large">
+                                    <i class="fas fa-bus-alt"></i>
+                                </div>
+                                <div class="vehicle-info">
+                                    <h4>Van (14 Seater)</h4>
+                                    <p>Up to 14 passengers</p>
+                                    <div class="vehicle-rate">R25/km</div>
+                                </div>
+                                <div class="vehicle-selector">
+                                    <input type="radio" name="vehicleType" value="van-14-seater" id="vehicle-van14">
+                                    <label for="vehicle-van14"></label>
+                                </div>
+                            </div>
+
+                            <div class="vehicle-option" data-vehicle="minibus">
+                                <div class="vehicle-icon bus">
+                                    <i class="fas fa-bus"></i>
+                                </div>
+                                <div class="vehicle-info">
+                                    <h4>Minibus</h4>
+                                    <p>Up to 20 passengers</p>
+                                    <div class="vehicle-rate">R30/km</div>
+                                </div>
+                                <div class="vehicle-selector">
+                                    <input type="radio" name="vehicleType" value="minibus" id="vehicle-minibus">
+                                    <label for="vehicle-minibus"></label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="vehicle-note">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Base fee: R50. Rate shown is per kilometer. Return trips are charged at double distance.</span>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button type="button" id="calculateBtn" class="btn btn-secondary btn-large">
+                        <i class="fas fa-calculator"></i>
+                        Calculate Price & Route
+                        <span class="btn-subtext">Get instant quote and view route</span>
+                    </button>
+
+                    <!-- Price Display -->
+                    <div id="priceDisplay" class="price-display" style="display: none;">
+                        <div class="price-header">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <h3>Your Quote</h3>
+                            <span class="quote-badge">Valid 24h</span>
+                        </div>
+                        
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <div class="price-label">
+                                    <span>Distance</span>
+                                    <span class="price-hint" id="distanceNote"></span>
+                                </div>
+                                <div class="price-value" id="distanceText">0 km</div>
+                            </div>
+                            
+                            <div class="price-row">
+                                <div class="price-label">
+                                    <span>Vehicle Rate</span>
+                                    <span class="price-hint" id="vehicleName"></span>
+                                </div>
+                                <div class="price-value" id="vehicleRateText">R0/km</div>
+                            </div>
+                            
+                            <div class="price-row">
+                                <div class="price-label">
+                                    <span>Base Fee</span>
+                                    <span class="price-hint">Service charge</span>
+                                </div>
+                                <div class="price-value" id="baseFeeText">R50.00</div>
+                            </div>
+                            
+                            <div class="price-row">
+                                <div class="price-label">
+                                    <span>Distance Charge</span>
+                                    <span class="price-hint" id="tripTypeHint"></span>
+                                </div>
+                                <div class="price-value" id="distanceCharge">R0.00</div>
+                            </div>
+                            
+                            <div class="price-divider"></div>
+                            
+                            <div class="price-row total">
+                                <div class="price-label">
+                                    <span>Total Price</span>
+                                    <span class="price-hint">Includes 15% VAT</span>
+                                </div>
+                                <div class="total-price" id="priceText">R0.00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="price-footer">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Price guaranteed for 24 hours • Free cancellation up to 2 hours before pickup</span>
+                        </div>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div class="terms-card">
+                        <div class="terms-header">
+                            <i class="fas fa-file-contract"></i>
+                            <h4>Terms & Conditions</h4>
+                        </div>
+                        <div class="terms-content">
+                            <div class="terms-checkbox">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <label for="terms">
+                                    I agree to the 
+                                    <a href="#" class="terms-link" onclick="showTermsModal(); return false;">
+                                        Terms & Conditions
+                                    </a>
+                                    and understand this is a booking request subject to confirmation.
+                                </label>
+                            </div>
+                            <div class="terms-points">
+                                <p><i class="fas fa-check-circle"></i> All bookings subject to availability</p>
+                                <p><i class="fas fa-check-circle"></i> Prices based on actual route distance</p>
+                                <p><i class="fas fa-check-circle"></i> Return trips = double distance charge</p>
+                                <p><i class="fas fa-check-circle"></i> Free cancellation 2 hours before pickup</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-large" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                        Confirm Booking & Receive Quote
+                        <span class="btn-subtext">Quote will be emailed instantly</span>
+                    </button>
+                </form>
+
+                <!-- Status Messages -->
+                <div id="statusMessage" class="status-message"></div>
+            </section>
+
+            <!-- Right Column: Map & Info -->
+            <section class="map-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-map-marked-alt"></i> Route Map</h2>
+                    <p class="section-subtitle">Real-time route visualization</p>
+                </div>
+                
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="map-overlay">
+                        <div class="map-stats">
+                            <div class="stat">
+                                <i class="fas fa-road"></i>
+                                <span id="mapDistance">0 km</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-clock"></i>
+                                <span id="mapDuration">0 min</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-gas-pump"></i>
+                                <span id="mapVehicle">Sedan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-controls">
+                    <button id="zoomIn" class="map-control-btn">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button id="zoomOut" class="map-control-btn">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button id="locateMe" class="map-control-btn">
+                        <i class="fas fa-location-crosshairs"></i>
+                    </button>
+                    <button id="resetMap" class="map-control-btn reset">
+                        <i class="fas fa-home"></i> Reset
+                    </button>
+                </div>
+
+                <!-- System Status -->
+                <div class="system-status-card">
+                    <div class="status-header">
+                        <i class="fas fa-server"></i>
+                        <h4>System Status</h4>
+                    </div>
+                    <div class="status-grid">
+                        <div class="status-item active">
+                            <div class="status-indicator"></div>
+                            <div class="status-info">
+                                <span class="status-label">Routing API</span>
+                                <span class="status-desc">OpenRouteService</span>
+                            </div>
+                        </div>
+                        <div class="status-item active">
+                            <div class="status-indicator"></div>
+                            <div class="status-info">
+                                <span class="status-label">Email Service</span>
+                                <span class="status-desc">Resend</span>
+                            </div>
+                        </div>
+                        <div class="status-item active">
+                            <div class="status-indicator"></div>
+                            <div class="status-info">
+                                <span class="status-label">Payment System</span>
+                                <span class="status-desc">Secure</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="contact-card">
+                    <div class="contact-header">
+                        <i class="fas fa-headset"></i>
+                        <h4>Need Help?</h4>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <span class="contact-label">Email Support</span>
+                                <span class="contact-value">modjadjishuttle@gmail.com</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <span class="contact-label">Phone Support</span>
+                                <span class="contact-value">+27 11 123 4567</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <span class="contact-label">Operating Hours</span>
+                                <span class="contact-value">24/7 Booking • 5am-10pm Service</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-shuttle-van"></i>
+                        <div>
+                            <h4>Modjadji's Shuttle Service</h4>
+                            <p>Premium Transportation Since 2024</p>
+                        </div>
+                    </div>
+                    <p class="footer-tagline">Your journey, our priority. Safe, reliable, and professional shuttle services across South Africa.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h5><i class="fas fa-shield-alt"></i> Security & Trust</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-check-circle"></i> SSL Encrypted</li>
+                        <li><i class="fas fa-check-circle"></i> No Card Details Required</li>
+                        <li><i class="fas fa-check-circle"></i> GDPR Compliant</li>
+                        <li><i class="fas fa-check-circle"></i> PCI DSS Compliant</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h5><i class="fas fa-link"></i> Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="https://modjadji-s-shuttle-service.vercel.app/" target="_blank">Main Website</a></li>
+                        <li><a href="#" onclick="showTermsModal(); return false;">Terms of Service</a></li>
+                        <li><a href="#" onclick="showPrivacyModal(); return false;">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showCancellationModal(); return false;">Cancellation Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Modjadji's Shuttle Service. All rights reserved.</p>
+                <p class="footer-version">Payment System v2.0 • Deployed on Vercel</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-contract"></i> Terms & Conditions</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h4>Booking Terms</h4>
+                    <ol>
+                        <li>All bookings are subject to availability and confirmation</li>
+                        <li>Prices are calculated based on actual route distance and selected vehicle</li>
+                        <li>Return trips are charged as double the single trip distance</li>
+                        <li>Payment required within 24 hours of booking confirmation</li>
+                        <li>Cancellation policy: Free cancellation 2 hours before pickup time</li>
+                        <li>Driver may contact you 30 minutes before pickup</li>
+                        <li>Passenger count must be accurate for safety and legal compliance</li>
+                        <li>Vehicle selection is final unless availability changes</li>
+                    </ol>
+                </div>
+                <div class="modal-section">
+                    <h4>Payment Terms</h4>
+                    <ul>
+                        <li>Quotes are valid for 24 hours</li>
+                        <li>Accepted payment methods: Bank Transfer, Cash, Card</li>
+                        <li>All prices include 15% VAT</li>
+                        <li>No hidden charges or fees</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">I Understand</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-shield"></i> Privacy Policy</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>We only collect information necessary for your booking. Your data is never shared with third parties without your consent.</p>
+                <div class="modal-section">
+                    <h4>Data Collection</h4>
+                    <ul>
+                        <li>Contact information for booking purposes</li>
+                        <li>Trip details for service delivery</li>
+                        <li>Payment information processed securely</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+    
+    <!-- Modal Scripts -->
+    <script>
+        function showTermsModal() {
+            document.getElementById('termsModal').style.display = 'flex';
+        }
+        
+        function showPrivacyModal() {
+            document.getElementById('privacyModal').style.display = 'flex';
+        }
+        
+        function showCancellationModal() {
+            alert('Cancellation Policy: Free cancellation up to 2 hours before pickup time. No shows will be charged 50% of the quoted price.');
+        }
+        
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+        
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
