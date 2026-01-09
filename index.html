@@ -203,8 +203,7 @@
                                         <i class="fas fa-calendar"></i>
                                         Travel Date
                                     </label>
-                                    <input type="date" id="date" name="date" 
-                                           min="<?php echo date('Y-m-d'); ?>">
+                                    <input type="date" id="date" name="date">
                                 </div>
 
                                 <div class="form-group">
@@ -637,7 +636,7 @@
             crossorigin=""></script>
     
     <!-- Custom JavaScript -->
-    <script src="/script.js"></script>
+    <script src="script.js"></script>
     
     <!-- Modal Scripts -->
     <script>
@@ -664,9 +663,23 @@
                 closeModal();
             }
         }
+
+<script>
+    // Set today's date as minimum for date inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').min = today;
+        if (document.getElementById('returnDate')) {
+            document.getElementById('returnDate').min = today;
+        }
+    });
+</script>
+        
+        
     </script>
 </body>
 </html>
+
 
 
 
