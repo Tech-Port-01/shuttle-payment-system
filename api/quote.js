@@ -65,7 +65,7 @@ export default async function handler(req, res) {
             }),
             tags: [
                 { name: 'category', value: 'booking-quote' },
-                { name: 'customer', value: email }
+                // { name: 'customer', value: email }
             ]
         });
 
@@ -717,4 +717,5 @@ function generateOwnerEmailHTML(data) {
     `;
 
 }
+
 
