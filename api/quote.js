@@ -424,19 +424,19 @@ function generateCustomerEmailHTML(data) {
             <div class="section">
                 <div class="section-title">👤 Passenger Information</div>
                 <div class="detail-row">
-                    <span class="detail-label">Name</span>
+                    <span class="detail-label">Name: </span>
                     <span class="detail-value">${name}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Email</span>
+                    <span class="detail-label">Email: </span>
                     <span class="detail-value">${email}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Phone</span>
+                    <span class="detail-label">Phone: </span>
                     <span class="detail-value">${phone}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Passengers</span>
+                    <span class="detail-label">Passengers: </span>
                     <span class="detail-value">${passengers} person(s)</span>
                 </div>
             </div>
@@ -444,7 +444,7 @@ function generateCustomerEmailHTML(data) {
             <div class="section">
                 <div class="section-title">📍 Trip Details</div>
                 <div class="detail-row">
-                    <span class="detail-label">Trip Type</span>
+                    <span class="detail-label">Trip Type: </span>
                     <span class="detail-value">${isReturnTrip ? 'Return Trip' : 'Single Trip'}</span>
                 </div>
                 <div class="detail-row">
@@ -456,11 +456,11 @@ function generateCustomerEmailHTML(data) {
                     <span class="detail-value">${dropoff}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Date</span>
+                    <span class="detail-label">Date: </span>
                     <span class="detail-value">${date}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Time</span>
+                    <span class="detail-label">Time: </span>
                     <span class="detail-value">${time}</span>
                 </div>
                 ${isReturnTrip ? `
@@ -484,23 +484,23 @@ function generateCustomerEmailHTML(data) {
             <div class="section">
                 <div class="section-title">🚗 Vehicle & Pricing Details</div>
                 <div class="detail-row">
-                    <span class="detail-label">Vehicle Type</span>
+                    <span class="detail-label">Vehicle Type: </span>
                     <span class="detail-value">${vehicleName}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Distance</span>
+                    <span class="detail-label">Distance: </span>
                     <span class="detail-value">${parseFloat(distance).toFixed(1)} km ${isReturnTrip ? '× 2 for return' : ''}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Vehicle Rate</span>
+                    <span class="detail-label">Vehicle Rate: </span>
                     <span class="detail-value">R${vehicleRate}/km</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Base Fee</span>
+                    <span class="detail-label">Base Fee: </span>
                     <span class="detail-value">R${parseFloat(baseFee).toFixed(2)}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Distance Charge</span>
+                    <span class="detail-label">Distance Charge: </span>
                     <span class="detail-value">R${parseFloat(distanceCharge).toFixed(2)}</span>
                 </div>
             </div>
@@ -774,3 +774,4 @@ function generateOwnerEmailHTML(data) {
 </html>
     `;
 }
+
