@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+    // Only accept POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ 
             success: false,
@@ -6,8 +7,12 @@ export default async function handler(req, res) {
         });
     }
 
+    // Load environment variables
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    const SENDER_EMAIL = process.env.SENDER_EMAIL;
+    const OWNER_EMAIL = process.env.OWNER_EMAIL;
     
+    // Validate environment configuration
     if (!RESEND_API_KEY) {
         console.error('RESEND_API_KEY environment variable is not configured');
         return res.status(500).json({ 
@@ -16,12 +21,21 @@ export default async function handler(req, res) {
         });
     }
 
+    if (!OWNER_EMAIL) {
+        console.error('OWNER_EMAIL environment variable is not configured');
+        return res.status(500).json({ 
+            success: false,
+            error: 'Admin notification email not configured. Please contact support.'
+        });
+    }
+
+    // Extract booking data from request body
     const { 
         name, email, phone, pickup, dropoff, date, time,
         tripType, sameDayReturn, returnDate, returnTime,
         passengers, vehicleType, vehicleRate, 
         distance, baseFee, distanceCharge, price,
-        websiteOwnerEmail, pickupAddress, dropoffAddress
+        pickupAddress, dropoffAddress
     } = req.body;
 
     // Validate required fields
@@ -47,25 +61,41 @@ export default async function handler(req, res) {
     console.log(`📨 Processing booking for ${name} (${email})`);
 
     try {
+        // Generate unique booking reference
         const bookingReference = generateBookingReference();
         
-        // Prepare customer email
+        // Prepare booking data for email templates
+        const bookingData = {
+            name, 
+            email, 
+            phone, 
+            pickup: pickupAddress || pickup, 
+            dropoff: dropoffAddress || dropoff, 
+            date: date || 'Flexible', 
+            time: time || 'Flexible',
+            tripType, 
+            sameDayReturn, 
+            returnDate, 
+            returnTime,
+            passengers, 
+            vehicleType, 
+            vehicleRate,
+            distance, 
+            baseFee, 
+            distanceCharge, 
+            price,
+            bookingReference
+        };
+
+        // Send customer confirmation email
         const customerEmailResponse = await sendEmail({
             apiKey: RESEND_API_KEY,
-            from: 'Modjadji Shuttle <kmokobane@techport.co.za>',
+            from: SENDER_EMAIL,
             to: [email],
             subject: `Your Shuttle Quote #${bookingReference} - R${parseFloat(price).toFixed(2)}`,
-            html: generateCustomerEmailHTML({
-                name, email, phone, pickup: pickupAddress || pickup, dropoff: dropoffAddress || dropoff, 
-                date: date || 'Flexible', time: time || 'Flexible',
-                tripType, sameDayReturn, returnDate, returnTime,
-                passengers, vehicleType, vehicleRate,
-                distance, baseFee, distanceCharge, price,
-                bookingReference
-            }),
+            html: generateCustomerEmailHTML(bookingData),
             tags: [
-                { name: 'category', value: 'booking-quote' },
-                // { name: 'customer', value: email }
+                { name: 'category', value: 'booking-quote' }
             ]
         });
 
@@ -77,28 +107,26 @@ export default async function handler(req, res) {
 
         console.log(`✅ Customer email sent to ${email}`);
 
-        // Prepare and send admin/owner email
-        if (websiteOwnerEmail) {
-            await sendEmail({
-                apiKey: RESEND_API_KEY,
-                from: 'Modjadji Booking System <kmokobane@techport.co.za>',
-                to: [websiteOwnerEmail],
-                subject: `🚗 New Booking #${bookingReference} - ${name}`,
-                html: generateOwnerEmailHTML({
-                    name, email, phone, pickup: pickupAddress || pickup, dropoff: dropoffAddress || dropoff, 
-                    date: date || 'Flexible', time: time || 'Flexible',
-                    tripType, sameDayReturn, returnDate, returnTime,
-                    passengers, vehicleType, vehicleRate,
-                    distance, baseFee, distanceCharge, price,
-                    bookingReference
-                }),
-                tags: [
-                    { name: 'category', value: 'new-booking' },
-                    { name: 'priority', value: 'high' }
-                ]
-            });
-            
-            console.log(`✅ Admin email sent to ${websiteOwnerEmail}`);
+        // Send owner notification email
+        const ownerEmailResponse = await sendEmail({
+            apiKey: RESEND_API_KEY,
+            from: SENDER_EMAIL,
+            to: [OWNER_EMAIL],
+            subject: `🚗 New Booking #${bookingReference} - ${name}`,
+            html: generateOwnerEmailHTML(bookingData),
+            tags: [
+                { name: 'category', value: 'new-booking' },
+                { name: 'priority', value: 'high' }
+            ]
+        });
+
+        if (!ownerEmailResponse.ok) {
+            const errorText = await ownerEmailResponse.text();
+            console.error('Owner email failed:', errorText);
+            // Don't throw error here - customer already got their email
+            console.warn('Owner notification failed but customer was notified');
+        } else {
+            console.log(`✅ Admin email sent to ${OWNER_EMAIL}`);
         }
 
         // Log successful booking
@@ -108,13 +136,19 @@ export default async function handler(req, res) {
         console.log(`   Price: R${price}`);
         console.log(`   Vehicle: ${vehicleType}`);
 
+        // Return success response
         return res.status(200).json({
             success: true,
             message: 'Quote sent successfully to your email',
             bookingReference: bookingReference,
             data: {
                 customer: { name, email, phone },
-                trip: { pickup, dropoff, distance, price },
+                trip: { 
+                    pickup: pickupAddress || pickup, 
+                    dropoff: dropoffAddress || dropoff, 
+                    distance, 
+                    price 
+                },
                 reference: bookingReference,
                 timestamp: new Date().toISOString()
             }
@@ -131,6 +165,17 @@ export default async function handler(req, res) {
     }
 }
 
+/**
+ * Send email via Resend API
+ * @param {Object} params - Email parameters
+ * @param {string} params.apiKey - Resend API key
+ * @param {string} params.from - Sender email address
+ * @param {string[]} params.to - Recipient email addresses
+ * @param {string} params.subject - Email subject
+ * @param {string} params.html - HTML email content
+ * @param {Array} params.tags - Email tags for categorization
+ * @returns {Promise<Response>} Fetch response
+ */
 async function sendEmail({ apiKey, from, to, subject, html, tags = [] }) {
     const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -150,12 +195,21 @@ async function sendEmail({ apiKey, from, to, subject, html, tags = [] }) {
     return response;
 }
 
+/**
+ * Generate unique booking reference
+ * Format: MSS-{timestamp}-{random}
+ * @returns {string} Booking reference code
+ */
 function generateBookingReference() {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 8).toUpperCase();
     return `MSS-${timestamp}-${random}`;
 }
 
+/**
+ * Generate customer confirmation email HTML
+ * (Template unchanged - original implementation)
+ */
 function generateCustomerEmailHTML(data) {
     const {
         name, email, phone, pickup, dropoff, date, time,
@@ -507,6 +561,10 @@ function generateCustomerEmailHTML(data) {
     `;
 }
 
+/**
+ * Generate owner notification email HTML
+ * (Template unchanged - original implementation)
+ */
 function generateOwnerEmailHTML(data) {
     const {
         name, email, phone, pickup, dropoff, date, time,
@@ -715,8 +773,4 @@ function generateOwnerEmailHTML(data) {
 </body>
 </html>
     `;
-
 }
-
-
-
