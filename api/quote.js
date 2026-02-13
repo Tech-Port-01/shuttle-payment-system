@@ -763,6 +763,16 @@ function generateOwnerEmailHTML(data) {
                 <li style="margin-bottom: 10px;">Update booking status in system</li>
                 <li>Send confirmation email to customer</li>
             </ol>
+            
+            <div style="margin-top: 25px; text-align: center; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                <a href="mailto:${email}?subject=Payment Method Confirmed&body=This is a confirmation that we have agreed on the payment method for your booking reference ${bookingReference}. Thank you for choosing Modjadji's Shuttle Service." 
+                   style="display: inline-block; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    Confirm Payment Method
+                </a>
+                <p style="margin: 15px 0 0; font-size: 13px; color: #6b7280;">
+                    Click after calling customer and agreeing on payment method
+                </p>
+            </div>
         </div>
         
         <div class="footer">
@@ -771,7 +781,7 @@ function generateOwnerEmailHTML(data) {
         </div>
     </div>
 </body>
-</html>
-    `;
+</html> `;
 }
+
 
